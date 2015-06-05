@@ -15,9 +15,8 @@ Table of Contents
 
 
 ### what is this?
-We are a group of Computer Engineering students from University of California, Riverside.
-As part of our CS 180: Intro to Software Engineering class we will develop an iOS app as a team.
-
+This is a Drum-Machine with 3 notes that can that can be recorded and looped.
+This was implemented on an ATMEGA1284, some buttons, some LEDs, and a speaker.
 
 ### pics or it didn't happen...
 

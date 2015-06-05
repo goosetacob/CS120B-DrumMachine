@@ -6,6 +6,14 @@
 //UCR Developed Libraries
 #include "ucr/bit.h"
 
+// EEPROM Macros
+#define read_eeprom_word(address) eeprom_read_word ((const uint16_t*)address)
+#define write_eeprom_word(address,value) eeprom_write_word ((uint16_t*)address,(uint16_t)value)
+#define update_eeprom_word(address,value) eeprom_update_word ((uint16_t*)address,(uint16_t)value)
+#define write_eeprom_array(address,value_p,length) eeprom_write_block ((const void *)value_p, (void *)address, length)
+// EEPROM Array
+int EEMEM beat_EEPROM[400];
+
 //--------Find GCD function --------------------------------------------------
 unsigned long int findGCD(unsigned long int a, unsigned long int b) {
     unsigned long int c;
@@ -158,18 +166,33 @@ int drum2Sound = 2;
 int drum3Sound = 3;
 //Available Notes
 double note[] = {0, 293.66, 349.23, 493.88};
-//Stored Beat
-int stored[400] = {0,0,0,0,0,1,1,1,1,1,2,2,2,2,2,1,1,1,1,1,2,2,2,2,2,3,3,3,3,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,2,2,2,2,2,1,1,1,1,1,2,2,2,2,2,3,3,3,3,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,2,2,2,2,0,0,0,0,0,1,1,1,1,1,2,2,2,2,2,1,1,1,1,1,2,2,2,2,2,3,3,3,3,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,2,2,2,2,2,1,1,1,1,1,2,2,2,2,2,3,3,3,3,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,3,3,3,3,0,0,0,0,0,1,1,1,1,1,2,2,2,2,2,1,1,1,1,1,2,2,2,2,2,3,3,3,3,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,2,2,2,2,2,1,1,1,1,1,2,2,2,2,2,3,3,3,3,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,2,2,2,2,0,0,0,0,0,1,1,1,1,1,2,2,2,2,2,1,1,1,1,1,2,2,2,2,2,3,3,3,3,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,2,2,2,2,2,1,1,1,1,1,2,2,2,2,2,3,3,3,3,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,3,3,3,3};
-unsigned int stored_Size = 400;
+//beat_RAM Beat
+int beat_RAM[400] = {-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1};
+//int beat_RAM[400] = {0,0,0,0,0,1,1,1,1,1,2,2,2,2,2,1,1,1,1,1,2,2,2,2,2,3,3,3,3,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,2,2,2,2,2,1,1,1,1,1,2,2,2,2,2,3,3,3,3,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,2,2,2,2,0,0,0,0,0,1,1,1,1,1,2,2,2,2,2,1,1,1,1,1,2,2,2,2,2,3,3,3,3,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,2,2,2,2,2,1,1,1,1,1,2,2,2,2,2,3,3,3,3,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,3,3,3,3,0,0,0,0,0,1,1,1,1,1,2,2,2,2,2,1,1,1,1,1,2,2,2,2,2,3,3,3,3,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,2,2,2,2,2,1,1,1,1,1,2,2,2,2,2,3,3,3,3,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,2,2,2,2,0,0,0,0,0,1,1,1,1,1,2,2,2,2,2,1,1,1,1,1,2,2,2,2,2,3,3,3,3,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,2,2,2,2,2,1,1,1,1,1,2,2,2,2,2,3,3,3,3,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,3,3,3,3};
+unsigned int beat_Size = 400;
 //Flags
 char play_Flag = 0;
 char record_Flag = 0;
 char newNote_Flag = 0;
 //Current note
-char currentNote = 0;
+int currentNote = 0;
 //Number of LEDs
 char num_LED = 8;
 //--------End Vars------------------------------------------------------------
+
+//--------Helper Function-----------------------------------------------------
+void synch_EEPROM_RAM() {
+  int i;
+  for(i = 0; i < beat_Size; i++) {
+    if (beat_RAM[i] == -1) {
+      beat_RAM[i] = read_eeprom_word(&beat_EEPROM[i]);
+    } else {
+      //update_eeprom_word(&beat_EEPROM[i], beat_RAM[i]);
+      write_eeprom_word(&beat_EEPROM[i], beat_RAM[i]);
+    }
+  }
+}
+//--------End Helper Function-------------------------------------------------
 
 //--------User defined FSMs---------------------------------------------------
 enum Buttons_States {Buttons_INIT, Buttons_IDLE, Buttons_RECORD, Buttons_PLAY, Buttons_DRUM1, Buttons_DRUM2, Buttons_DRUM3};
@@ -182,7 +205,7 @@ int SMButtons(int state) {
       state = Buttons_IDLE;
       break;
     case Buttons_IDLE:
-      if (Buttons_DEBUG) PORTA = 1;
+      if (Buttons_DEBUG) PORTC = 1;
       if (portDTmp == noButton)
         state = Buttons_IDLE;
       else if (portDTmp == drum3Pin)
@@ -197,7 +220,7 @@ int SMButtons(int state) {
         state = Buttons_RECORD;
       break;
     case Buttons_RECORD:
-      if (Buttons_DEBUG) PORTA = 2;
+      if (Buttons_DEBUG) PORTC = 2;
       if (portDTmp == recordPin) {
         state = Buttons_RECORD;
       } else if (portDTmp == noButton) {
@@ -208,7 +231,7 @@ int SMButtons(int state) {
       }
       break;
     case Buttons_PLAY:
-      if (Buttons_DEBUG) PORTA = 3;
+      if (Buttons_DEBUG) PORTC = 3;
       if (portDTmp == playPin) {
         state = Buttons_PLAY;
       }
@@ -220,7 +243,7 @@ int SMButtons(int state) {
       }
       break;
     case Buttons_DRUM1:
-      if (Buttons_DEBUG) PORTA = 4;
+      if (Buttons_DEBUG) PORTC = 4;
 
       if (portDTmp == drum1Pin) {
         currentNote = drum1Sound;
@@ -231,7 +254,7 @@ int SMButtons(int state) {
       }
       break;
     case Buttons_DRUM2:
-      if (Buttons_DEBUG) PORTA = 5;
+      if (Buttons_DEBUG) PORTC = 5;
 
       if (portDTmp == drum2Pin) {
         currentNote = drum2Sound;
@@ -242,7 +265,7 @@ int SMButtons(int state) {
       }
       break;
     case Buttons_DRUM3:
-      if (Buttons_DEBUG) PORTA = 6;
+      if (Buttons_DEBUG) PORTC = 6;
 
       if (portDTmp == drum3Pin) {
         currentNote = drum3Sound;
@@ -290,21 +313,32 @@ int SMPlay(int state) {
   //State machine transitions
   switch(state) {
     case Play_INIT:
+      PORTC = 0x00;
       loop_Index = 0;
       state = Play_IDLE;
       break;
     case Play_IDLE:
-      if (Play_DEBUG) PORTA = 1;
+      if (Play_DEBUG) PORTC = 1;
       if (play_FlagTmp == 0)
         state = Play_IDLE;
       else if (play_FlagTmp == 1)
         state = Play_LOOP;
       break;
     case Play_LOOP:
-      if (Play_DEBUG) PORTA = loop_Index;
+      if (Play_DEBUG) PORTC = loop_Index;
 
-      set_PWM(note[stored[loop_Index]]);
-      loop_Index = (loop_Index < stored_Size-1) ? loop_Index+1 : 0;
+      //show loop progress
+      if (loop_Index <= beat_Size/num_LED) PORTC = 0x01;
+      else if (loop_Index <= beat_Size/num_LED*2) PORTC = 0x03;
+      else if (loop_Index <= beat_Size/num_LED*3) PORTC = 0x07;
+      else if (loop_Index <= beat_Size/num_LED*4) PORTC = 0x0F;
+      else if (loop_Index <= beat_Size/num_LED*5) PORTC = 0x1F;
+      else if (loop_Index <= beat_Size/num_LED*6) PORTC = 0x3F;
+      else if (loop_Index <= beat_Size/num_LED*7) PORTC = 0x7F;
+      else if (loop_Index <= beat_Size/num_LED*8) PORTC = 0xFF;
+
+      set_PWM(note[beat_RAM[loop_Index]]);
+      loop_Index = (loop_Index < beat_Size-1) ? loop_Index+1 : 0;
 
       if (play_FlagTmp == 1)
         state = Play_LOOP;
@@ -340,32 +374,33 @@ int SMRecord(int state) {
 
   switch (state) {
     case Record_INIT:
-      PORTA = 0x00;
+      PORTC = 0x00;
       loop_Index = 0;
+      synch_EEPROM_RAM();
       state = Record_IDLE;
       break;
     case Record_IDLE:
-      if (Record_DEBUG) PORTA = 1;
+      if (Record_DEBUG) PORTC = 1;
       if (record_FlagTmp == 0)
         state = Record_IDLE;
       else if (record_FlagTmp == 1)
         state = Record_LOOP;
       break;
     case Record_LOOP:
-      if (Record_DEBUG) PORTA = 2;
+      if (Record_DEBUG) PORTC = 2;
 
       //show loop progress
-      if (loop_Index <= stored_Size/num_LED) PORTA = 0x01;
-      else if (loop_Index <= stored_Size/num_LED*2) PORTA = 0x03;
-      else if (loop_Index <= stored_Size/num_LED*3) PORTA = 0x07;
-      else if (loop_Index <= stored_Size/num_LED*4) PORTA = 0x0F;
-      else if (loop_Index <= stored_Size/num_LED*5) PORTA = 0x1F;
-      else if (loop_Index <= stored_Size/num_LED*6) PORTA = 0x3F;
-      else if (loop_Index <= stored_Size/num_LED*7) PORTA = 0x7F;
-      else if (loop_Index <= stored_Size/num_LED*8) PORTA = 0xFF;
+      if (loop_Index <= beat_Size/num_LED) PORTC = 0x01;
+      else if (loop_Index <= beat_Size/num_LED*2) PORTC = 0x03;
+      else if (loop_Index <= beat_Size/num_LED*3) PORTC = 0x07;
+      else if (loop_Index <= beat_Size/num_LED*4) PORTC = 0x0F;
+      else if (loop_Index <= beat_Size/num_LED*5) PORTC = 0x1F;
+      else if (loop_Index <= beat_Size/num_LED*6) PORTC = 0x3F;
+      else if (loop_Index <= beat_Size/num_LED*7) PORTC = 0x7F;
+      else if (loop_Index <= beat_Size/num_LED*8) PORTC = 0xFF;
 
-      stored[loop_Index] = currentNote;
-      loop_Index = (loop_Index < stored_Size-1) ? loop_Index+1 : 0;
+      beat_RAM[loop_Index] = currentNote;
+      loop_Index = (loop_Index < beat_Size-1) ? loop_Index+1 : 0;
 
       if (record_FlagTmp == 1)
         state = Record_LOOP;
@@ -384,8 +419,9 @@ int SMRecord(int state) {
 
 int main() {
   //PORT I/O Define
-  DDRA = 0xFF; PORTA = 0x00; //LED Debug Outputs
+  DDRA = 0xFF; PORTA = 0x00; //ADC
   DDRB = 0xFF; PORTB = 0x00; //PWM for speaker on PB6
+  DDRC = 0xFF; PORTC = 0x00; //LED Debug Output
   DDRD = 0x00; PORTD = 0xFF; //Button Inputs
 
   // period for the tasks
@@ -433,6 +469,7 @@ int main() {
   // turn timer on
   TimerOn();
 
+  // setup PWM
   PWM_on();
 
   unsigned short i;
