@@ -1,6 +1,7 @@
 //AVR Libraries
 #include <avr/io.h>
 #include <avr/interrupt.h>
+#include <avr/eeprom.h>
 
 //UCR Developed Libraries
 #include "ucr/bit.h"
@@ -149,7 +150,7 @@ typedef struct _task {
 //DEBUG Vars
 char Buttons_DEBUG = 0;
 char Play_DEBUG = 0;
-char Record_DEBUG = 1;
+char Record_DEBUG = 0;
 //Sounds Vars
 int noSound = 0;
 int drum1Sound = 1;
@@ -166,6 +167,8 @@ char record_Flag = 0;
 char newNote_Flag = 0;
 //Current note
 char currentNote = 0;
+//Number of LEDs
+char num_LED = 8;
 //--------End Vars------------------------------------------------------------
 
 //--------User defined FSMs---------------------------------------------------
@@ -337,6 +340,7 @@ int SMRecord(int state) {
 
   switch (state) {
     case Record_INIT:
+      PORTA = 0x00;
       loop_Index = 0;
       state = Record_IDLE;
       break;
@@ -349,6 +353,20 @@ int SMRecord(int state) {
       break;
     case Record_LOOP:
       if (Record_DEBUG) PORTA = 2;
+
+      //show loop progress
+      if (loop_Index <= stored_Size/num_LED) PORTA = 0x01;
+      else if (loop_Index <= stored_Size/num_LED*2) PORTA = 0x03;
+      else if (loop_Index <= stored_Size/num_LED*3) PORTA = 0x07;
+      else if (loop_Index <= stored_Size/num_LED*4) PORTA = 0x0F;
+      else if (loop_Index <= stored_Size/num_LED*5) PORTA = 0x1F;
+      else if (loop_Index <= stored_Size/num_LED*6) PORTA = 0x3F;
+      else if (loop_Index <= stored_Size/num_LED*7) PORTA = 0x7F;
+      else if (loop_Index <= stored_Size/num_LED*8) PORTA = 0xFF;
+
+      stored[loop_Index] = currentNote;
+      loop_Index = (loop_Index < stored_Size-1) ? loop_Index+1 : 0;
+
       if (record_FlagTmp == 1)
         state = Record_LOOP;
       else if (record_FlagTmp == 0) {
