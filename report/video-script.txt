@@ -1,0 +1,21 @@
+Hi,
+
+My name is Gustavo Blanco and my project from CS/EE 120B at UC Riverside.
+
+I call it Drum-Machine.
+
+To do this project I am using an ATMEGA1284, 8 LEDs, 5 tactile buttons, and a speaker.
+
+The goal of this project is to record and play back a 16 second beat.
+
+In order to do so the use has three drums they can use that can be played using the drum1, drum2, and drum3 buttons here.
+
+Once the use has a beat in mind using these available sounds they can press the Record button here to being recording their beat.
+
+As they record their beat they will have this LED bank to notify them of their progress in the 16 seconds of recording time.
+
+Once they complete recording they can play back their beat indefinitely using the Play button here.
+
+One nice feature is that even after shutoff, the users last record beat will still be saved and can be played back again by saving an updated beat to the chips EEPROM memory
+
+So that's my project and I hope you enjoyed this video!
