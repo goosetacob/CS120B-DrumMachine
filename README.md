@@ -22,8 +22,8 @@ This was implemented on an ATMEGA1284, some buttons, some LEDs, and a speaker.
 ![Drum-Machine](/picture/drum-machine.JPG)
 image of the Drum-Machine board
 
-![Drum-Machine-Schematic](/picture/drum-machine-schematic.PNG)
+![Drum-Machine-Schematic](/picture/drum-machine-schematic.png)
 image of the Drum-Machine Schematic
 
 ### plus a video
-Youtube Video: 
+Youtube Video:
