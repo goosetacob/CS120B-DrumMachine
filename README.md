@@ -26,4 +26,4 @@ image of the Drum-Machine board
 image of the Drum-Machine Schematic
 
 ### plus a video
-Youtube Video:
+[Youtube Video](https://youtu.be/AIx_B2E4rTI)
