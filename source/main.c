@@ -146,6 +146,7 @@ typedef struct _task {
 //PORTB
 #define speaker 6
 //PORTD
+#define newNotePin 0x20
 #define recordPin 0x10
 #define playPin 0x08
 #define drum1Pin 0x04
@@ -195,9 +196,9 @@ void synch_EEPROM_RAM() {
 //--------End Helper Function-------------------------------------------------
 
 //--------User defined FSMs---------------------------------------------------
-enum Buttons_States {Buttons_INIT, Buttons_IDLE, Buttons_RECORD, Buttons_PLAY, Buttons_DRUM1, Buttons_DRUM2, Buttons_DRUM3};
+enum Buttons_States {Buttons_INIT, Buttons_IDLE, Buttons_RECORD, Buttons_NEW, Buttons_PLAY, Buttons_DRUM1, Buttons_DRUM2, Buttons_DRUM3};
 int SMButtons(int state) {
-  char portDTmp = ~PIND & 0x1F;
+  char portDTmp = ~PIND & 0x3F;
 
   //State machine transitions
   switch (state) {
@@ -205,7 +206,7 @@ int SMButtons(int state) {
       state = Buttons_IDLE;
       break;
     case Buttons_IDLE:
-      if (Buttons_DEBUG) PORTC = 1;
+      if (Buttons_DEBUG) PORTA = 1;
       if (portDTmp == noButton)
         state = Buttons_IDLE;
       else if (portDTmp == drum3Pin)
@@ -218,9 +219,11 @@ int SMButtons(int state) {
         state = Buttons_PLAY;
       else if (portDTmp == recordPin)
         state = Buttons_RECORD;
+      else if (portDTmp == newNotePin)
+        state = Buttons_NEW;
       break;
     case Buttons_RECORD:
-      if (Buttons_DEBUG) PORTC = 2;
+      if (Buttons_DEBUG) PORTA = 2;
       if (portDTmp == recordPin) {
         state = Buttons_RECORD;
       } else if (portDTmp == noButton) {
@@ -231,7 +234,7 @@ int SMButtons(int state) {
       }
       break;
     case Buttons_PLAY:
-      if (Buttons_DEBUG) PORTC = 3;
+      if (Buttons_DEBUG) PORTA = 3;
       if (portDTmp == playPin) {
         state = Buttons_PLAY;
       }
@@ -243,7 +246,7 @@ int SMButtons(int state) {
       }
       break;
     case Buttons_DRUM1:
-      if (Buttons_DEBUG) PORTC = 4;
+      if (Buttons_DEBUG) PORTA = 4;
 
       if (portDTmp == drum1Pin) {
         currentNote = drum1Sound;
@@ -254,7 +257,7 @@ int SMButtons(int state) {
       }
       break;
     case Buttons_DRUM2:
-      if (Buttons_DEBUG) PORTC = 5;
+      if (Buttons_DEBUG) PORTA = 5;
 
       if (portDTmp == drum2Pin) {
         currentNote = drum2Sound;
@@ -265,13 +268,22 @@ int SMButtons(int state) {
       }
       break;
     case Buttons_DRUM3:
-      if (Buttons_DEBUG) PORTC = 6;
+      if (Buttons_DEBUG) PORTA = 6;
 
       if (portDTmp == drum3Pin) {
         currentNote = drum3Sound;
         state = Buttons_DRUM3;
       } else if (portDTmp == noButton) {
         currentNote = noSound;
+        state = Buttons_IDLE;
+      }
+      break;
+    case Buttons_NEW:
+      if (Buttons_DEBUG) PORTA = 7;
+
+      if (portDTmp == newNotePin) {
+        state = Buttons_DRUM3;
+      } else if (portDTmp == noButton) {
         state = Buttons_IDLE;
       }
       break;
@@ -313,29 +325,29 @@ int SMPlay(int state) {
   //State machine transitions
   switch(state) {
     case Play_INIT:
-      PORTC = 0x00;
+      PORTA = 0x00;
       loop_Index = 0;
       state = Play_IDLE;
       break;
     case Play_IDLE:
-      if (Play_DEBUG) PORTC = 1;
+      if (Play_DEBUG) PORTA = 1;
       if (play_FlagTmp == 0)
         state = Play_IDLE;
       else if (play_FlagTmp == 1)
         state = Play_LOOP;
       break;
     case Play_LOOP:
-      if (Play_DEBUG) PORTC = loop_Index;
+      if (Play_DEBUG) PORTA = loop_Index;
 
       //show loop progress
-      if (loop_Index <= beat_Size/num_LED) PORTC = 0x01;
-      else if (loop_Index <= beat_Size/num_LED*2) PORTC = 0x03;
-      else if (loop_Index <= beat_Size/num_LED*3) PORTC = 0x07;
-      else if (loop_Index <= beat_Size/num_LED*4) PORTC = 0x0F;
-      else if (loop_Index <= beat_Size/num_LED*5) PORTC = 0x1F;
-      else if (loop_Index <= beat_Size/num_LED*6) PORTC = 0x3F;
-      else if (loop_Index <= beat_Size/num_LED*7) PORTC = 0x7F;
-      else if (loop_Index <= beat_Size/num_LED*8) PORTC = 0xFF;
+      if (loop_Index <= beat_Size/num_LED) PORTA = 0x01;
+      else if (loop_Index <= beat_Size/num_LED*2) PORTA = 0x03;
+      else if (loop_Index <= beat_Size/num_LED*3) PORTA = 0x07;
+      else if (loop_Index <= beat_Size/num_LED*4) PORTA = 0x0F;
+      else if (loop_Index <= beat_Size/num_LED*5) PORTA = 0x1F;
+      else if (loop_Index <= beat_Size/num_LED*6) PORTA = 0x3F;
+      else if (loop_Index <= beat_Size/num_LED*7) PORTA = 0x7F;
+      else if (loop_Index <= beat_Size/num_LED*8) PORTA = 0xFF;
 
       set_PWM(note[beat_RAM[loop_Index]]);
       loop_Index = (loop_Index < beat_Size-1) ? loop_Index+1 : 0;
@@ -374,30 +386,30 @@ int SMRecord(int state) {
 
   switch (state) {
     case Record_INIT:
-      PORTC = 0x00;
+      PORTA = 0x00;
       loop_Index = 0;
       synch_EEPROM_RAM();
       state = Record_IDLE;
       break;
     case Record_IDLE:
-      if (Record_DEBUG) PORTC = 1;
+      if (Record_DEBUG) PORTA = 1;
       if (record_FlagTmp == 0)
         state = Record_IDLE;
       else if (record_FlagTmp == 1)
         state = Record_LOOP;
       break;
     case Record_LOOP:
-      if (Record_DEBUG) PORTC = 2;
+      if (Record_DEBUG) PORTA = 2;
 
       //show loop progress
-      if (loop_Index <= beat_Size/num_LED) PORTC = 0x01;
-      else if (loop_Index <= beat_Size/num_LED*2) PORTC = 0x03;
-      else if (loop_Index <= beat_Size/num_LED*3) PORTC = 0x07;
-      else if (loop_Index <= beat_Size/num_LED*4) PORTC = 0x0F;
-      else if (loop_Index <= beat_Size/num_LED*5) PORTC = 0x1F;
-      else if (loop_Index <= beat_Size/num_LED*6) PORTC = 0x3F;
-      else if (loop_Index <= beat_Size/num_LED*7) PORTC = 0x7F;
-      else if (loop_Index <= beat_Size/num_LED*8) PORTC = 0xFF;
+      if (loop_Index <= beat_Size/num_LED) PORTA = 0x01;
+      else if (loop_Index <= beat_Size/num_LED*2) PORTA = 0x03;
+      else if (loop_Index <= beat_Size/num_LED*3) PORTA = 0x07;
+      else if (loop_Index <= beat_Size/num_LED*4) PORTA = 0x0F;
+      else if (loop_Index <= beat_Size/num_LED*5) PORTA = 0x1F;
+      else if (loop_Index <= beat_Size/num_LED*6) PORTA = 0x3F;
+      else if (loop_Index <= beat_Size/num_LED*7) PORTA = 0x7F;
+      else if (loop_Index <= beat_Size/num_LED*8) PORTA = 0xFF;
 
       beat_RAM[loop_Index] = currentNote;
       loop_Index = (loop_Index < beat_Size-1) ? loop_Index+1 : 0;
@@ -419,9 +431,9 @@ int SMRecord(int state) {
 
 int main() {
   //PORT I/O Define
-  DDRA = 0xFF; PORTA = 0x00; //ADC
+  DDRA = 0xFF; PORTA = 0x00; //LED Output
   DDRB = 0xFF; PORTB = 0x00; //PWM for speaker on PB6
-  DDRC = 0xFF; PORTC = 0x00; //LED Debug Output
+  //DDRC = 0xFF; PORTA = 0x00; //LED Debug Output
   DDRD = 0x00; PORTD = 0xFF; //Button Inputs
 
   // period for the tasks

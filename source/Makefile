@@ -21,7 +21,9 @@ DEVICE     = atmega1284p
 CLOCK      = 8000000
 PROGRAMMER = -P usb -c avrispmkii
 OBJECTS    = main.o
-FUSES      = -v -U lfuse:w:0xe4:m -U hfuse:w:0x99:m
+FUSES      = -U lfuse:w:0x42:m -U hfuse:w:0xd9:m -U efuse:w:0xff:m
+#FUESE FOR ATMEGA32
+#FUSES      = -v -U lfuse:w:0xe4:m -U hfuse:w:0x99:m
 
 # ATMega8 fuse bits used a bove (fuse bits for other devices are different!):
 # Example for 8 MHz internal oscillator

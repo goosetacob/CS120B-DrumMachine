@@ -19,5 +19,11 @@ This is a Drum-Machine with 3 notes that can that can be recorded and looped.
 This was implemented on an ATMEGA1284, some buttons, some LEDs, and a speaker.
 
 ### pics or it didn't happen...
+![Drum-Machine](/picture/drum-machine.JPG)
+image of the Drum-Machine board
+
+![Drum-Machine-Schematic](/picture/drum-machine-schematic.PNG)
+image of the Drum-Machine Schematic
 
 ### plus a video
+Youtube Video: 
